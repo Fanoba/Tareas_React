@@ -7,17 +7,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.Start {
-  display: flex;
-  justify-content: center;  
-  align-items: center;      
-  height: 100vh;            
-  text-align: center;       
-}
-
-h1{
-  color: rgb(17, 0, 128);
-}
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;

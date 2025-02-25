@@ -2,13 +2,16 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import {HelloWorld} from './components/Tarea1';
+import { AppCounter } from './components/AppCounter';
+import { SimpleForm } from './components/SimpleForm';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <HelloWorld></HelloWorld>
-  </React.StrictMode>
+  <>
+  <SimpleForm></SimpleForm>
+
+
+  </>
 );
 
 // If you want to start measuring performance in your app, pass a function
