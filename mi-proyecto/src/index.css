@@ -75,9 +75,3 @@ h3 {
   color: #ff6347;
   margin-top: 20px;
 }
-.container{
-  display: flex;
-  flex-direction: column;
-  height: 100vh; /* Ocupa toda la altura de la pantalla */
-  padding: 20px;
-}
