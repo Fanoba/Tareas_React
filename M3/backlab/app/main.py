@@ -1,51 +1,73 @@
 from fastapi import FastAPI, HTTPException
-from supabase import create_client
-import os
 from pydantic import BaseModel
+from supabase import create_client, Client
 from dotenv import load_dotenv
+import os
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Asegúrate que coincide con tu URL de React
-    allow_credentials=True,
-    allow_methods=["*"],  # Permite todos los métodos (GET, POST, etc.)
-    allow_headers=["*"],  # Permite todos los headers
-    expose_headers=["*"]   # Necesario para ciertas configuraciones
-)
+# Cargar variables de entorno
 load_dotenv()
 
-
 # Configuración Supabase
-supabase = create_client(
-    os.getenv("SUPABASE_URL"),
-    os.getenv("SUPABASE_KEY")
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# Crear app FastAPI
+app = FastAPI()
+
+# Configurar CORS para React (cambia la URL si es necesario)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # URL de tu frontend React
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-class Empleado(BaseModel):
-    nombre: str
-    empresa: str
-    proyecto: str
-    rol: str
+# Modelo Pydantic para las tareas
+class Task(BaseModel):
+    tarea: str
+    status: bool
 
-@app.post("/empleados")
-async def crear_empleado(empleado: Empleado):
-    response = supabase.table('empleados').insert(empleado.dict()).execute()
-    return response.data
+# Obtener todas las tareas
+@app.get("/tareas")
+def get_tasks():
+    try:
+        response = supabase.table("tasks").select("*").execute()
+        return response.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/empleados")
-async def listar_empleados():
-    response = supabase.table('empleados').select("*").execute()
-    return response.data
+# Agregar una tarea
+@app.post("/tareas")
+def add_task(task: Task):
+    try:
+        response = supabase.table("tasks").insert({
+            "tarea": task.tarea,
+            "status": task.status
+        }).execute()
+        return response.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.put("/empleados/{empleado_id}")
-async def actualizar_empleado(empleado_id: int, empleado: Empleado):
-    response = supabase.table('empleados').update(empleado.dict()).eq('id', empleado_id).execute()
-    return response.data
+# Actualizar una tarea por ID
+@app.put("/tareas/{task_id}")
+def update_task(task_id: int, task: Task):
+    try:
+        response = supabase.table("tasks").update({
+            "tarea": task.tarea,
+            "status": task.status
+        }).eq("id", task_id).execute()
+        return response.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.delete("/empleados/{empleado_id}")
-async def borrar_empleado(empleado_id: int):
-    response = supabase.table('empleados').delete().eq('id', empleado_id).execute()
-    return {"message": f"Empleado {empleado_id} eliminado"}
+# Eliminar una tarea por ID
+@app.delete("/tareas/{task_id}")
+def delete_task(task_id: int):
+    try:
+        response = supabase.table("tasks").delete().eq("id", task_id).execute()
+        return {"message": f"Tarea {task_id} eliminada"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

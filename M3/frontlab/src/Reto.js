@@ -1,266 +1,225 @@
-import React from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import { Table, Button, Container, FormGroup, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import {
+  Table,
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  FormGroup,
+  Label,
+  Input,
+  Alert,
+  Spinner,
+  Container,
+} from "reactstrap";
+import axios from "axios";
 
-// Configura Axios globalmente
 axios.defaults.baseURL = process.env.REACT_APP_API_URL || "http://localhost:8000";
-axios.defaults.withCredentials = true;
-axios.defaults.headers.common['Content-Type'] = 'application/json';
 
-class Reto extends React.Component {
-    state = {
-        data: [],
-        modalActualizar: false,
-        modalInsertar: false,
-        form: {
-            id: "",
-            nombre: "",
-            empresa: "",
-            proyecto: "",
-            rol: "",
-        },
-    };
+const Tareas = () => {
+  const [tareas, setTareas] = useState([]);
+  const [modalInsertar, setModalInsertar] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState(null);
+  const [form, setForm] = useState({ tarea: "", status: false });
 
-    componentDidMount() {
-        this.cargarEmpleados();
+  useEffect(() => {
+    cargarTareas();
+  }, []);
+
+  const cargarTareas = async () => {
+    setLoading(true);
+    setAlert(null);
+    try {
+      const res = await axios.get("/tareas");
+      setTareas(res.data);
+    } catch (error) {
+      setAlert({ type: "danger", message: "Error al cargar tareas." });
     }
+    setLoading(false);
+  };
 
-    cargarEmpleados = async () => {
-        try {
-            const response = await axios.get("/empleados");
-            this.setState({ data: response.data });
-        } catch (error) {
-            console.error("Error al cargar empleados:", error);
-        }
-    };
+  const toggleModalInsertar = () => {
+    setModalInsertar(!modalInsertar);
+    setForm({ tarea: "", status: false });
+    setAlert(null);
+  };
 
-    mostrarModalActualizar = (dato) => {
-        this.setState({
-            form: dato,
-            modalActualizar: true,
-        });
-    };
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setForm({ ...form, [name]: type === "checkbox" ? checked : value });
+  };
 
-    cerrarModalActualizar = () => {
-        this.setState({ modalActualizar: false });
-    };
+  const insertar = async () => {
+    if (!form.tarea.trim()) {
+      setAlert({ type: "danger", message: "Por favor ingresa una tarea." });
+      return;
+    }
+    setLoading(true);
+    setAlert(null);
+    try {
+      await axios.post("/tareas", form);
+      await cargarTareas();
+      setModalInsertar(false);
+      setForm({ tarea: "", status: false });
+      setAlert({ type: "success", message: "Tarea agregada con éxito." });
+    } catch (error) {
+      setAlert({
+        type: "danger",
+        message: "Error al insertar: " + (error.response?.data?.detail || error.message),
+      });
+    }
+    setLoading(false);
+  };
 
-    mostrarModalInsertar = () => {
-        this.setState({
-            form: {
-                id: "",
-                nombre: "",
-                empresa: "",
-                proyecto: "",
-                rol: "",
-            },
-            modalInsertar: true,
-        });
-    };
+  const eliminarTarea = async (id) => {
+    if (!window.confirm("¿Seguro que deseas eliminar esta tarea?")) return;
+    setLoading(true);
+    setAlert(null);
+    try {
+      await axios.delete(`/tareas/${id}`);
+      await cargarTareas();
+      setAlert({ type: "success", message: "Tarea eliminada." });
+    } catch (error) {
+      setAlert({
+        type: "danger",
+        message: "Error al eliminar: " + (error.response?.data?.detail || error.message),
+      });
+    }
+    setLoading(false);
+  };
 
-    cerrarModalInsertar = () => {
-        this.setState({ modalInsertar: false });
-    };
+  const cambiarStatus = async (tarea) => {
+    setLoading(true);
+    setAlert(null);
+    try {
+      await axios.put(`/tareas/${tarea.id}`, {
+        tarea: tarea.tarea,
+        status: !tarea.status,
+      });
+      await cargarTareas();
+    } catch (error) {
+      setAlert({
+        type: "danger",
+        message: "Error al actualizar: " + (error.response?.data?.detail || error.message),
+      });
+    }
+    setLoading(false);
+  };
 
-    editar = async (dato) => {
-        try {
-            await axios.put(`/empleados/${dato.id}`, dato);
-            await this.cargarEmpleados();
-            this.setState({ modalActualizar: false });
-        } catch (error) {
-            console.error("Error al editar empleado:", error);
-        }
-    };
+  return (
+    <Container className="mt-4">
+      <h2 className="mb-4 text-center">Gestión de Tareas</h2>
 
-    eliminar = async (dato) => {
-        const opcion = window.confirm(`¿Estás seguro que deseas eliminar al empleado ${dato.nombre}?`);
-        if (opcion) {
-            try {
-                await axios.delete(`/empleados/${dato.id}`);
-                await this.cargarEmpleados();
-            } catch (error) {
-                console.error("Error al eliminar empleado:", error);
-            }
-        }
-    };
+      {alert && <Alert color={alert.type}>{alert.message}</Alert>}
 
-    insertar = async () => {
-        try {
-            await axios.post("/empleados", this.state.form);
-            await this.cargarEmpleados();
-            this.setState({ modalInsertar: false });
-        } catch (error) {
-            console.error("Error al insertar empleado:", error);
-            if (error.response) {
-                console.error("Detalles del error:", error.response.data);
-            }
-        }
-    };
-
-    handleChange = (e) => {
-        this.setState({
-            form: {
-                ...this.state.form,
-                [e.target.name]: e.target.value,
-            },
-        });
-    };
-
-    render() {
-        return (
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <Button color="success" onClick={toggleModalInsertar}>
+          + Agregar tarea
+        </Button>
+        <Button color="info" onClick={cargarTareas} disabled={loading}>
+          {loading ? (
             <>
-                <Container>
-                    <br />
-                    <Button color="success" onClick={this.mostrarModalInsertar}>Crear</Button>
-                    <br />
-                    <br />
-                    <Table striped responsive>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nombre</th>
-                                <th>Empresa</th>
-                                <th>Proyecto</th>
-                                <th>Rol</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {this.state.data.map((dato) => (
-                                <tr key={dato.id}>
-                                    <td>{dato.id}</td>
-                                    <td>{dato.nombre}</td>
-                                    <td>{dato.empresa}</td>
-                                    <td>{dato.proyecto}</td>
-                                    <td>{dato.rol}</td>
-                                    <td>
-                                        <Button color="primary" onClick={() => this.mostrarModalActualizar(dato)}>
-                                            Editar
-                                        </Button>{' '}
-                                        <Button color="danger" onClick={() => this.eliminar(dato)}>
-                                            Eliminar
-                                        </Button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
-                </Container>
-
-                {/* Modal para Insertar */}
-                <Modal isOpen={this.state.modalInsertar} toggle={this.cerrarModalInsertar}>
-                    <ModalHeader toggle={this.cerrarModalInsertar}>Insertar Empleado</ModalHeader>
-                    <ModalBody>
-                        <FormGroup>
-                            <label>Nombre:</label>
-                            <input
-                                className="form-control"
-                                name="nombre"
-                                type="text"
-                                onChange={this.handleChange}
-                                value={this.state.form.nombre}
-                            />
-                        </FormGroup>
-                        <FormGroup>
-                            <label>Empresa:</label>
-                            <input
-                                className="form-control"
-                                name="empresa"
-                                type="text"
-                                onChange={this.handleChange}
-                                value={this.state.form.empresa}
-                            />
-                        </FormGroup>
-                        <FormGroup>
-                            <label>Proyecto:</label>
-                            <input
-                                className="form-control"
-                                name="proyecto"
-                                type="text"
-                                onChange={this.handleChange}
-                                value={this.state.form.proyecto}
-                            />
-                        </FormGroup>
-                        <FormGroup>
-                            <label>Rol:</label>
-                            <input
-                                className="form-control"
-                                name="rol"
-                                type="text"
-                                onChange={this.handleChange}
-                                value={this.state.form.rol}
-                            />
-                        </FormGroup>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button color="primary" onClick={this.insertar}>Insertar</Button>
-                        <Button color="secondary" onClick={this.cerrarModalInsertar}>Cancelar</Button>
-                    </ModalFooter>
-                </Modal>
-
-                {/* Modal para Actualizar */}
-                <Modal isOpen={this.state.modalActualizar} toggle={this.cerrarModalActualizar}>
-                    <ModalHeader toggle={this.cerrarModalActualizar}>Editar Empleado</ModalHeader>
-                    <ModalBody>
-                        <FormGroup>
-                            <label>ID:</label>
-                            <input
-                                className="form-control"
-                                readOnly
-                                type="text"
-                                value={this.state.form.id}
-                            />
-                        </FormGroup>
-                        <FormGroup>
-                            <label>Nombre:</label>
-                            <input
-                                className="form-control"
-                                name="nombre"
-                                type="text"
-                                onChange={this.handleChange}
-                                value={this.state.form.nombre}
-                            />
-                        </FormGroup>
-                        <FormGroup>
-                            <label>Empresa:</label>
-                            <input
-                                className="form-control"
-                                name="empresa"
-                                type="text"
-                                onChange={this.handleChange}
-                                value={this.state.form.empresa}
-                            />
-                        </FormGroup>
-                        <FormGroup>
-                            <label>Proyecto:</label>
-                            <input
-                                className="form-control"
-                                name="proyecto"
-                                type="text"
-                                onChange={this.handleChange}
-                                value={this.state.form.proyecto}
-                            />
-                        </FormGroup>
-                        <FormGroup>
-                            <label>Rol:</label>
-                            <input
-                                className="form-control"
-                                name="rol"
-                                type="text"
-                                onChange={this.handleChange}
-                                value={this.state.form.rol}
-                            />
-                        </FormGroup>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button color="primary" onClick={() => this.editar(this.state.form)}>Guardar</Button>
-                        <Button color="secondary" onClick={this.cerrarModalActualizar}>Cancelar</Button>
-                    </ModalFooter>
-                </Modal>
+              <Spinner size="sm" /> Cargando...
             </>
-        );
-    }
-}
+          ) : (
+            "Actualizar"
+          )}
+        </Button>
+      </div>
 
-export default Reto;
+      <Table striped bordered hover responsive>
+        <thead className="table-primary">
+          <tr>
+            <th>ID</th>
+            <th>Tarea</th>
+            <th>Status</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tareas.length === 0 ? (
+            <tr>
+              <td colSpan="4" className="text-center">
+                No hay tareas disponibles
+              </td>
+            </tr>
+          ) : (
+            tareas.map((tarea) => (
+              <tr key={tarea.id}>
+                <td>{tarea.id}</td>
+                <td>{tarea.tarea}</td>
+                <td>
+                  <span
+                    className={
+                      tarea.status ? "badge bg-success" : "badge bg-warning text-dark"
+                    }
+                  >
+                    {tarea.status ? "Completo" : "Pendiente"}
+                  </span>
+                </td>
+                <td>
+                  <Button
+                    size="sm"
+                    color={tarea.status ? "warning" : "success"}
+                    onClick={() => cambiarStatus(tarea)}
+                    className="me-2"
+                  >
+                    {tarea.status ? "Marcar pendiente" : "Marcar completada"}
+                  </Button>
+                  <Button size="sm" color="danger" onClick={() => eliminarTarea(tarea.id)}>
+                    Eliminar
+                  </Button>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </Table>
+
+      <Modal isOpen={modalInsertar} toggle={toggleModalInsertar} centered>
+        <ModalHeader toggle={toggleModalInsertar}>Insertar Tarea</ModalHeader>
+        <ModalBody>
+          <FormGroup>
+            <Label for="tareaInput">Tarea</Label>
+            <Input
+              id="tareaInput"
+              type="text"
+              name="tarea"
+              placeholder="Describe tu tarea"
+              onChange={handleChange}
+              value={form.tarea}
+            />
+          </FormGroup>
+          <FormGroup check>
+            <Label check>
+              <Input
+                type="checkbox"
+                name="status"
+                checked={form.status}
+                onChange={handleChange}
+              />{" "}
+              Completada
+            </Label>
+          </FormGroup>
+          {alert && alert.type === "danger" && (
+            <Alert color="danger" className="mt-3">
+              {alert.message}
+            </Alert>
+          )}
+        </ModalBody>
+        <ModalFooter>
+          <Button color="primary" onClick={insertar} disabled={loading}>
+            {loading ? <Spinner size="sm" /> : "Insertar"}
+          </Button>
+          <Button color="secondary" onClick={toggleModalInsertar} disabled={loading}>
+            Cancelar
+          </Button>
+        </ModalFooter>
+      </Modal>
+    </Container>
+  );
+};
+
+export default Tareas;
