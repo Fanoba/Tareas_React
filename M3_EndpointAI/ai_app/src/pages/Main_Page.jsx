@@ -27,6 +27,60 @@ export const MAIN_PAGE = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [typingIndex, setTypingIndex] = useState(0);
 
+
+  const PROVIDERS = {
+  openai: {
+    url: 'https://api.openai.com/v1/chat/completions',
+    model: 'gpt-3.5-turbo',
+    headerPrefix: 'Bearer'
+  },
+  openrouter: {
+    url: 'https://openrouter.ai/api/v1/chat/completions',
+    model: 'openai/gpt-3.5-turbo',
+    headerPrefix: 'Bearer'
+  },
+  deepseek: {
+    url: 'https://api.deepseek.com/v1/chat/completions',
+    model: 'deepseek-chat',
+    headerPrefix: 'Bearer'
+  },
+  anthropic: {
+    url: 'https://api.anthropic.com/v1/messages',
+    model: 'claude-3-opus-20240229',
+    headerPrefix: 'Bearer'
+  },
+  perplexity: {
+    url: 'https://api.perplexity.ai/chat/completions',
+    model: 'llama-3-sonar-large-32k-online',
+    headerPrefix: 'Bearer'
+  },
+  mistral: {
+    url: 'https://api.mistral.ai/v1/chat/completions',
+    model: 'mistral-medium',
+    headerPrefix: 'Bearer'
+  },
+  groq: {
+    url: 'https://api.groq.com/openai/v1/chat/completions',
+    model: 'mixtral-8x7b-32768',
+    headerPrefix: 'Bearer'
+  },
+  together: {
+    url: 'https://api.together.xyz/v1/chat/completions',
+    model: 'mistralai/Mistral-7B-Instruct-v0.1',
+    headerPrefix: 'Bearer'
+  },
+  moonshot: {
+    url: 'https://api.moonshot.cn/v1/chat/completions',
+    model: 'moonshot-v1-128k',
+    headerPrefix: 'Bearer'
+  },
+  zeroone: {
+    url: 'https://api.01wise.com/v1/chat/completions',
+    model: 'gpt-3.5-turbo',
+    headerPrefix: 'Bearer'
+  }
+};
+
   // Efecto para el typing animation
   useEffect(() => {
     if (response && typingIndex < response.length) {
@@ -46,49 +100,27 @@ export const MAIN_PAGE = () => {
   setTypingIndex(0);
   setIsLoading(true);
 
-  let url = '';
-  let body = {};
-  let headers = {};
+  const selected = PROVIDERS[provider];
+
+  if (!selected) {
+    setError('Proveedor no soportado');
+    setIsLoading(false);
+    return;
+  }
+
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `${selected.headerPrefix} ${apiKey}`
+  };
+
+  const body = {
+    model: selected.model,
+    messages: [{ role: 'user', content: prompt }],
+    temperature: 0.7
+  };
 
   try {
-    if (provider === 'openai') {
-      url = 'https://api.openai.com/v1/chat/completions';
-      headers = {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`
-      };
-      body = {
-        model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7
-      };
-    } else if (provider === 'openrouter') {
-      url = 'https://openrouter.ai/api/v1/chat/completions';
-      headers = {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`
-      };
-      body = {
-        model: 'openai/gpt-3.5-turbo',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7
-      };
-    } else if (provider === 'deepseek') {
-      url = 'https://api.deepseek.com/v1/chat/completions';
-      headers = {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`
-      };
-      body = {
-        model: 'deepseek-chat',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7
-      };
-    } else {
-      throw new Error('Proveedor no soportado');
-    }
-
-    const res = await fetch(url, {
+    const res = await fetch(selected.url, {
       method: 'POST',
       headers,
       body: JSON.stringify(body)
@@ -99,7 +131,15 @@ export const MAIN_PAGE = () => {
     }
 
     const data = await res.json();
-    setResponse(data.choices[0].message.content);
+
+    // Algunas APIs (como Anthropic) devuelven en formatos distintos
+    const content =
+      data.choices?.[0]?.message?.content ||
+      data.choices?.[0]?.delta?.content ||
+      data.content ||
+      'No se pudo obtener respuesta.';
+
+    setResponse(content);
   } catch (err) {
     console.error(err);
     setError(err.message || 'API Key inválida o error en la petición.');
@@ -139,9 +179,16 @@ export const MAIN_PAGE = () => {
             }
           }}
         >
-          <MenuItem value="openai">OpenAI</MenuItem>
-          <MenuItem value="openrouter">OpenRouter</MenuItem>
-          <MenuItem value="deepseek">DeepSeek</MenuItem>
+           <MenuItem value="openai">OpenAI (GPT-3.5)</MenuItem>
+            <MenuItem value="openrouter">OpenRouter</MenuItem>
+            <MenuItem value="deepseek">DeepSeek</MenuItem>
+            <MenuItem value="anthropic">Anthropic (Claude 3)</MenuItem>
+            <MenuItem value="perplexity">Perplexity</MenuItem>
+            <MenuItem value="mistral">Mistral</MenuItem>
+            <MenuItem value="groq">Groq</MenuItem>
+            <MenuItem value="together">Together AI</MenuItem>
+            <MenuItem value="moonshot">Moonshot AI</MenuItem>
+            <MenuItem value="zeroone">ZeroOne</MenuItem>
         </Select>
 
         {/* API Key */}
