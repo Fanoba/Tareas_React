@@ -1,0 +1,47 @@
+/* Estilos para el contenedor principal */
+.header-container {
+background: linear-gradient(
+  135deg,
+  #000000 0%,
+  #3b6196 30%,
+  #5883AD 50%,
+  #8fd3f4 70%,
+  #ffffff 100%
+) !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Estilos para la barra de herramientas */
+.header-toolbar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0 !important;
+}
+
+/* Estilos para la imagen */
+.header-image {
+  height: 60px;
+  width: auto;
+  margin-bottom: 16px;
+}
+
+/* Contenedor del texto */
+.header-text-container {
+  text-align: center;
+}
+
+/* Estilos para el título */
+.header-title {
+  font-weight: bold !important;
+  margin-bottom: 8px !important;
+  color: white !important;
+}
+
+/* Estilos para el subtítulo */
+.header-subtitle {
+  color: white !important;
+  font-style: italic !important;
+}
