@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { InputAdornment, IconButton } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import "../styles/Main_Page.css"; // Asegúrate de que la ruta sea correcta
 
 export const MAIN_PAGE = () => {
 
@@ -151,7 +152,7 @@ export const MAIN_PAGE = () => {
   
 
   return (
-    <div style={{ backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
+    <div className="main-page-container">
       <MAIN_HEADER />
 
       <Box
