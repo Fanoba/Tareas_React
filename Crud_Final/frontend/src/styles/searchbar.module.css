@@ -1,0 +1,31 @@
+/* Para el input de búsqueda */
+.searchInput {
+  border: none;
+  border-radius: 12px;
+  padding: 15px 20px;
+  width: 100%;
+  font-size: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+}
+
+/* Para el botón de búsqueda */
+.searchButton {
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  border: none;
+  color: white;
+  padding: 15px 25px;
+  border-radius: 0 12px 12px 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.searchButton:hover {
+  transform: scale(1.02);
+  opacity: 0.9;
+}

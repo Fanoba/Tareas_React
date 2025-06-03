@@ -1,0 +1,183 @@
+.card {
+  position: relative;
+  width: 180px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  margin: 10px;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.cover {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-bottom: 1px solid #eee;
+}
+
+.content {
+  padding: 12px;
+}
+
+.title {
+  font-size: 16px;
+  margin: 0 0 5px 0;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.author {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* MODAL STYLES */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 10px;
+  padding: 45px;
+  width: 90%;
+  max-width: 500px;
+   margin-top: 70px;
+  position: relative;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #666;
+  position: absolute;
+  top: 15px;
+  right: 15px;
+}
+
+.closeBtn:hover {
+  color: #333;
+}
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.modalCover {
+  width: 200px;
+  height: 280px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.bookInfo {
+  text-align: center;
+}
+
+.modalTitle {
+  font-size: 22px;
+  margin-bottom: 10px;
+  color: #222;
+}
+
+.infoItem {
+  margin: 4px 0;
+  color: #555;
+}
+
+.actionButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.readBtn,
+.deleteBtn {
+  padding: 10px 15px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.readBtn {
+  background-color: #4caf50;
+}
+
+.readBtn:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.deleteBtn {
+  background-color: #f44336;
+}
+
+.deleteBtn:hover:not(:disabled) {
+  background-color: #d32f2f;
+}
+
+.readBtn:disabled,
+.deleteBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsivo */
+
+@media (max-width: 600px) {
+  .modalContent {
+    flex-direction: column;
+  }
+
+  .modalCover {
+    width: 100%;
+    height: auto;
+  }
+}

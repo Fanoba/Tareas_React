@@ -1,0 +1,104 @@
+/* Header.module.css */
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  background-color: white;
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.headerScrolled {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.5rem;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  transition: all 0.3s ease;
+}
+
+
+.navLink i {
+  margin-right: 0.5rem;
+  line-height: 1; /* asegura que el icono esté alineado verticalmente */
+  font-size: 1.1rem;
+  display: inline-block;
+}
+
+.navLink:hover {
+  color: #1f2937 !important;
+  transform: translateY(-1px);
+}
+
+.navLink::after {
+  content: '';
+  position: absolute;
+  bottom: 4px; /* Ajusta esto según la altura visual deseada */
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  transition: width 0.3s ease;
+}
+
+.navLink:hover::after,
+.activeNavLink::after {
+  width: 100%;
+}
+.activeNavLink {
+  color: #111827 !important;
+  font-weight: 600;
+}
+
+
+
+.dropdownMenu {
+  border: none !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  border-radius: 12px !important;
+  padding: 0.5rem 0;
+  margin-top: 8px !important;
+}
+
+.dropdownItem {
+  padding: 0.5rem 1.5rem !important;
+  transition: all 0.2s ease;
+}
+
+.dropdownItem:hover {
+  background: linear-gradient(90deg, #f0f4ff, #f8f0ff);
+  color: #3b82f6 !important;
+  transform: translateX(4px);
+}
+
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .navLink {
+    margin: 0.25rem 0;
+    padding: 0.5rem 1rem !important;
+  }
+  
+  .dropdownMenu {
+    box-shadow: none;
+    border-radius: 0 !important;
+  }
+  
+  .navLink::after {
+    display: none;
+  }
+}
